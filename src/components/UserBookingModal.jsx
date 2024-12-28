@@ -32,7 +32,7 @@ export default function UserBookingModal({ handleClose, open }) {
     try {
       const endpoint =
         email === "admin@gmail.com"
-          ? "hhttps://feastfinder-backend-nwph.onrender.com/api/all-bookings"
+          ? "https://feastfinder-backend-nwph.onrender.com/api/all-bookings"
           : `https://feastfinder-backend-nwph.onrender.com/api/bookings/${userId}`;
 
       const response = await axios.get(endpoint);
@@ -48,7 +48,7 @@ export default function UserBookingModal({ handleClose, open }) {
   const updateBookingStatus = async (bookingId, status) => {
     try {
       const response = await axios.put(
-        `hhttps://feastfinder-backend-nwph.onrender.com/api/updateBooking/${bookingId}`,
+        `https://feastfinder-backend-nwph.onrender.com/api/updateBooking/${bookingId}`,
         { status }
       );
 

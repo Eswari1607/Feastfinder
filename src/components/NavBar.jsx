@@ -31,12 +31,13 @@ export default function NavBar({ setSearchedHotel }) {
     setAuthToken(localStorage.getItem("authToken")); // Update authToken state when it changes in localStorage
   }, []);
 
-  const handleLogout = () => {
-    localStorage.removeItem("username");
-    localStorage.removeItem("authToken"); // Remove authToken on logout
-    setAuthToken(null); // Update the state to reflect logout
-    window.location.reload();
-  };
+ const handleLogout = () => {
+  localStorage.removeItem("username");
+  localStorage.removeItem("authToken"); // Remove authToken on logout
+  setAuthToken(null); // Update the state to reflect logout
+  navigate("/"); // Navigate to the starting page
+};
+
 
   return (
     <Grid2 container>
