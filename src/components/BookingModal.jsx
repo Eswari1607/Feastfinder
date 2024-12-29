@@ -194,13 +194,15 @@ export default function BookingModal({ handleClose, modalState }) {
 
       if (response.status === 201) {
         enqueueSnackbar("Review submitted successfully!", { variant: "success" });
+        setRating(0);
+        setReview("");
         useEffect(() => {
           getReviews(hotelId);
         }, [hotelId]); // Refresh reviews after submitting one
       }
     } catch (error) {
       console.error("Error submitting review:", error);
-      enqueueSnackbar("Error submitting review!", { variant: "error" });
+      // enqueueSnackbar("Error submitting review!", { variant: "error" });
     }
   };
 
