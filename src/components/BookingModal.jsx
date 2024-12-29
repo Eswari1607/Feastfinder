@@ -18,7 +18,7 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import axios from "axios";
 import { useSnackbar } from "notistack";
 import { LoadingButton } from "@mui/lab";
-import { LocationOn, Phone, Email, Restaurant, LocalOffer, Star, AttachMoney, Group, Close } from "@mui/icons-material";
+import { LocationOn, Phone, Email, Restaurant, LocalOffer, Star, AttachMoney, Group, Close, Reviews } from "@mui/icons-material";
 
 
 export default function BookingModal({ handleClose, modalState }) {
@@ -41,10 +41,10 @@ export default function BookingModal({ handleClose, modalState }) {
   const [rating, setRating] = useState(0);
   const [review, setReview] = useState("");
   const [reviews, setReviews] = useState([]);
-  const [reply, setReply] = useState(""); 
+  const [reply, setReply] = useState("");
 
-  // console.log(hotelDetails);
-  
+  // console.log(reviews);
+
   useEffect(() => {
     if (id && location) {
       setBookingState({
@@ -76,14 +76,19 @@ export default function BookingModal({ handleClose, modalState }) {
   const getReviews = async (hotelId) => {
     try {
       const response = await axios.get(`https://feastfinder-backend-nwph.onrender.com/api/get-reviews/${hotelId}`);
-      if (response.data) {
-        setReviews(response.data); // Save the reviews in the state
+      
+      if (response.data && Array.isArray(response.data)) {
+        setReviews(response.data); // Set the reviews if found
+      } else {
+        setReviews([]); // Clear reviews if no reviews are found
       }
     } catch (error) {
       console.error("Error fetching reviews:", error);
-      enqueueSnackbar("Error fetching reviews!", { variant: "error" });
+      setReviews([]); // Handle error by clearing reviews
     }
   };
+  
+  
 
   const handleSliderChange = (event, newValue) => {
     setBookingState({
@@ -189,7 +194,9 @@ export default function BookingModal({ handleClose, modalState }) {
 
       if (response.status === 201) {
         enqueueSnackbar("Review submitted successfully!", { variant: "success" });
-        getReviews(id);  // Refresh reviews after submitting one
+        useEffect(() => {
+          getReviews(hotelId);
+        }, [hotelId]); // Refresh reviews after submitting one
       }
     } catch (error) {
       console.error("Error submitting review:", error);
@@ -216,7 +223,9 @@ export default function BookingModal({ handleClose, modalState }) {
       if (response.status === 200) {
         enqueueSnackbar("Reply submitted successfully!", { variant: "success" });
         setReply("");  // Clear reply input after submitting
-        getReviews(id);  // Refresh reviews after reply
+        useEffect(() => {
+          getReviews(hotelId);
+        }, [hotelId]);  // Refresh reviews after reply
       }
     } catch (error) {
       console.error("Error submitting reply:", error);
@@ -257,188 +266,188 @@ export default function BookingModal({ handleClose, modalState }) {
         <Grid container spacing={3}>
           {/* Left side - Hotel Details */}
           <Grid item xs={12} md={6}>
-         { hotelDetails && (
-      <Box>
-        {/* Hotel Image */}
-        <img
-          src={hotelDetails.image}
-          alt={hotelDetails.name}
-          style={{
-            width: "100%",
-            height: "300px",
-            objectFit: "cover",
-            borderRadius: "8px",
-          }}
-        />
+            {hotelDetails && (
+              <Box>
+                {/* Hotel Image */}
+                <img
+                  src={hotelDetails.image}
+                  alt={hotelDetails.name}
+                  style={{
+                    width: "100%",
+                    height: "300px",
+                    objectFit: "cover",
+                    borderRadius: "8px",
+                  }}
+                />
 
-        {/* Hotel Name */}
-        <Typography variant="h4" sx={{ mt: 2, mb: 1, fontWeight: "bold" }}>
-          {hotelDetails.name}
-        </Typography>
+                {/* Hotel Name */}
+                <Typography variant="h4" sx={{ mt: 2, mb: 1, fontWeight: "bold" }}>
+                  {hotelDetails.name}
+                </Typography>
 
-        {/* Hotel Location */}
-        <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-          <LocationOn color="primary" />
-          <Typography variant="body1" sx={{ ml: 1 }}>
-            {hotelDetails.location}
-          </Typography>
-        </Box>
+                {/* Hotel Location */}
+                <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
+                  <LocationOn color="primary" />
+                  <Typography variant="body1" sx={{ ml: 1 }}>
+                    {hotelDetails.location}
+                  </Typography>
+                </Box>
 
-        {/* Hotel Discount */}
-        <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-          <LocalOffer color="primary" />
-          <Typography variant="body1" sx={{ ml: 1 }}>
-            {hotelDetails.discount}
-          </Typography>
-        </Box>
-{/* Hotel Menu */}
-<Box sx={{ mb: 2 }}>
-  <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-    <Restaurant color="primary" />
-    <Typography variant="body1" sx={{ ml: 1, fontWeight: "bold", fontFamily: "'Poppins', sans-serif", fontSize: "1.2rem" }}>
-      Menu:
-    </Typography>
-  </Box>
-  <Box sx={{ pl: 3 }}>
-    {hotelDetails.menuItems.map((item, index) => (
-      <Typography
-        key={index}
-        variant="body2"
-        sx={{
-          mb: 1,
-          fontFamily: "'Poppins', sans-serif", // You can use any font family here
-          fontWeight: 500,
-          fontSize: "1rem",
-          color: index % 2 === 0 ? "#FF6347" : "#4CAF50", // Alternate color for each item
-          letterSpacing: "0.5px",
-          transition: "color 0.3s ease, transform 0.2s ease",
-          "&:hover": {
-            color: "#FFA500", // Hover color
-            transform: "scale(1.05)", // Slight scale effect on hover
-          },
-        }}
-      >
-        {item}
-      </Typography>
-    ))}
-  </Box>
-</Box>
+                {/* Hotel Discount */}
+                <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
+                  <LocalOffer color="primary" />
+                  <Typography variant="body1" sx={{ ml: 1 }}>
+                    {hotelDetails.discount}
+                  </Typography>
+                </Box>
+                {/* Hotel Menu */}
+                <Box sx={{ mb: 2 }}>
+                  <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
+                    <Restaurant color="primary" />
+                    <Typography variant="body1" sx={{ ml: 1, fontWeight: "bold", fontFamily: "'Poppins', sans-serif", fontSize: "1.2rem" }}>
+                      Menu:
+                    </Typography>
+                  </Box>
+                  <Box sx={{ pl: 3 }}>
+                    {hotelDetails.menuItems.map((item, index) => (
+                      <Typography
+                        key={index}
+                        variant="body2"
+                        sx={{
+                          mb: 1,
+                          fontFamily: "'Poppins', sans-serif", // You can use any font family here
+                          fontWeight: 500,
+                          fontSize: "1rem",
+                          color: index % 2 === 0 ? "#FF6347" : "#4CAF50", // Alternate color for each item
+                          letterSpacing: "0.5px",
+                          transition: "color 0.3s ease, transform 0.2s ease",
+                          "&:hover": {
+                            color: "#FFA500", // Hover color
+                            transform: "scale(1.05)", // Slight scale effect on hover
+                          },
+                        }}
+                      >
+                        {item}
+                      </Typography>
+                    ))}
+                  </Box>
+                </Box>
 
 
-        {/* Hotel Phone */}
-        <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-          <Phone color="primary" />
-          <Typography variant="body1" sx={{ ml: 1 }}>
-            {hotelDetails.contact.phone}
-          </Typography>
-        </Box>
+                {/* Hotel Phone */}
+                <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
+                  <Phone color="primary" />
+                  <Typography variant="body1" sx={{ ml: 1 }}>
+                    {hotelDetails.contact.phone}
+                  </Typography>
+                </Box>
 
-        {/* Hotel Email */}
-        <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-          <Email color="primary" />
-          <Typography variant="body1" sx={{ ml: 1 }}>
-            {hotelDetails.contact.email}
-          </Typography>
-        </Box>
+                {/* Hotel Email */}
+                <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
+                  <Email color="primary" />
+                  <Typography variant="body1" sx={{ ml: 1 }}>
+                    {hotelDetails.contact.email}
+                  </Typography>
+                </Box>
 
-        {/* Hotel Price */}
-        <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-          <AttachMoney color="primary" />
-          <Typography variant="h6" sx={{ ml: 1 }}>
-            ₹{hotelDetails.price}
-          </Typography>
-          <Typography variant="body2" sx={{ ml: 1 }}>
-            ({hotelDetails.priceDetail})
-          </Typography>
-        </Box>
+                {/* Hotel Price */}
+                <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
+                  <AttachMoney color="primary" />
+                  <Typography variant="h6" sx={{ ml: 1 }}>
+                    ₹{hotelDetails.price}
+                  </Typography>
+                  <Typography variant="body2" sx={{ ml: 1 }}>
+                    ({hotelDetails.priceDetail})
+                  </Typography>
+                </Box>
 
-        {/* Hotel Ratings */}
-        <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-          <Star color="primary" />
-          <Typography variant="h6" sx={{ ml: 1 }}>
-            {hotelDetails.ratings}
-          </Typography>
-        </Box>
+                {/* Hotel Ratings */}
+                <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+                  <Star color="primary" />
+                  <Typography variant="h6" sx={{ ml: 1 }}>
+                    {hotelDetails.ratings}
+                  </Typography>
+                </Box>
 
-        {/* Hotel Tags */}
-        <Box>
-          {hotelDetails.tags.map((tag, index) => (
-            <Chip key={index} label={tag} sx={{ mr: 1, mb: 1 }} />
-          ))}
-        </Box>
-      </Box>
-    )}
-          <Box sx={{ mt: 3 }}>
-  <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-    Reviews
-  </Typography>
-  {hotelDetails && hotelDetails._id && reviews.length > 0 ? (
-    reviews.map((review) => (
-      <Box key={review._id} sx={{ mt: 2, border: "1px solid #ddd", padding: "16px", borderRadius: "8px" }}>
-        <Box sx={{ display: "flex", flexDirection: "column" }}>
-          {/* Username in large letters and uppercase */}
-          <Typography variant="h6" sx={{ fontWeight: "bold", textTransform: "uppercase" }}>
-            {review.userName}
-          </Typography>
-
-          {/* Rating Display */}
-          <Box sx={{ display: "flex", alignItems: "center" }}>
-            <Rating value={review.rating} readOnly />
-          </Box>
-
-          {/* Review text */}
-          <Typography variant="body2" sx={{ mt: 1 }}>
-            {review.review}
-          </Typography>
-
-          {/* Date */}
-          <Typography variant="caption" sx={{ mt: 1, display: "block", color: "gray" }}>
-            {new Date(review.createdAt).toLocaleString()}
-          </Typography>
-
-          {/* Admin Reply Section */}
-          {review.adminReply && (
-            <Box sx={{ mt: 2, borderTop: "1px solid #ddd", pt: 2 }}>
+                {/* Hotel Tags */}
+                <Box>
+                  {hotelDetails.tags.map((tag, index) => (
+                    <Chip key={index} label={tag} sx={{ mr: 1, mb: 1 }} />
+                  ))}
+                </Box>
+              </Box>
+            )}
+            <Box sx={{ mt: 3 }}>
               <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-                Admin Reply
+                Reviews
               </Typography>
-              <Typography variant="body2" sx={{ fontStyle: "italic", color: "gray" }}>
-                {review.adminReply}
-              </Typography>
-            </Box>
-          )}
+              {reviews.length > 0 ? (
+                reviews.map((review) => (
+                  <Box key={review.hotelId} sx={{ mt: 2, border: "1px solid #ddd", padding: "16px", borderRadius: "8px" }}>
+                    <Box sx={{ display: "flex", flexDirection: "column" }}>
+                      {/* Username in large letters and uppercase */}
+                      <Typography variant="h6" sx={{ fontWeight: "bold", textTransform: "uppercase" }}>
+                        {review.userName}
+                      </Typography>
 
-          {/* Admin Reply Input (Only visible to admin) */}
-          {email === "admin@gmail.com" && !review.adminReply && (
-            <Box sx={{ mt: 2 }}>
-              <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-                Admin Reply
-              </Typography>
-              <TextField
-                label="Write your reply"
-                multiline
-                rows={3}
-                value={reply}
-                onChange={(e) => setReply(e.target.value)}
-                fullWidth
-              />
-              <LoadingButton
-                variant="contained"
-                color="primary"
-                onClick={() => handleAdminReply(review._id)}
-                sx={{ mt: 2 }}
-              >
-                Reply
-              </LoadingButton>
+                      {/* Rating Display */}
+                      <Box sx={{ display: "flex", alignItems: "center" }}>
+                        <Rating value={review.rating} readOnly />
+                      </Box>
+
+                      {/* Review text */}
+                      <Typography variant="body2" sx={{ mt: 1 }}>
+                        {review.review}
+                      </Typography>
+
+                      {/* Date */}
+                      <Typography variant="caption" sx={{ mt: 1, display: "block", color: "gray" }}>
+                        {new Date(review.createdAt).toLocaleString()}
+                      </Typography>
+
+                      {/* Admin Reply Section */}
+                      {review.adminReply && (
+                        <Box sx={{ mt: 2, borderTop: "1px solid #ddd", pt: 2 }}>
+                          <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+                            Admin Reply
+                          </Typography>
+                          <Typography variant="body2" sx={{ fontStyle: "italic", color: "gray" }}>
+                            {review.adminReply}
+                          </Typography>
+                        </Box>
+                      )}
+
+                      {/* Admin Reply Input (Only visible to admin) */}
+                      {email === "admin@gmail.com" && !review.adminReply && (
+                        <Box sx={{ mt: 2 }}>
+                          <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+                            Admin Reply
+                          </Typography>
+                          <TextField
+                            label="Write your reply"
+                            multiline
+                            rows={3}
+                            value={reply}
+                            onChange={(e) => setReply(e.target.value)}
+                            fullWidth
+                          />
+                          <LoadingButton
+                            variant="contained"
+                            color="primary"
+                            onClick={() => handleAdminReply(review._id)}
+                            sx={{ mt: 2 }}
+                          >
+                            Reply
+                          </LoadingButton>
+                        </Box>
+                      )}
+                    </Box>
+                  </Box>
+                ))
+              ) : (
+                <Typography variant="body2">No reviews yet.</Typography>
+              )}
             </Box>
-          )}
-        </Box>
-      </Box>
-    ))
-  ) : (
-    <Typography variant="body2">No reviews yet.</Typography>
-  )}
-</Box>
 
 
           </Grid>
@@ -581,5 +590,4 @@ const timeSlots = [
   "8 PM - 9 PM",
   "9 PM - 10 PM",
 ];
-
 
